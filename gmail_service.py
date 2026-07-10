@@ -1,35 +1,30 @@
-import os.path
+
 import re
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+import streamlit as st
 
-SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
+SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
+
 def get_gmail_service():
-    creds = None
+    token = st.secrets["gmail_token"]
 
-    # Load existing token
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    creds = Credentials(
+        token=token["token"],
+        refresh_token=token["refresh_token"],
+        token_uri=token["token_uri"],
+        client_id=token["client_id"],
+        client_secret=token["client_secret"],
+        scopes=SCOPES,
+    )
 
-    # If no valid credentials, login again
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES
-            )
-            creds = flow.run_local_server(port=0)
+    if creds.expired and creds.refresh_token:
+        creds.refresh(Request())
 
-        # Save token for future use
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
+    return build("gmail", "v1", credentials=creds)
 
-    # Build Gmail API service
-    service = build('gmail', 'v1', credentials=creds)
-    return service
+
 def get_email_body(service, msg_id):
     message = service.users().messages().get(
         userId='me',
