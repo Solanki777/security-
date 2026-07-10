@@ -56,10 +56,10 @@ __all__ = ["agent_decision"]
 #: Mirrors phishing_detector.RISK_THRESHOLDS so a bare score maps to the
 #: same risk level the detector itself would have assigned.
 RISK_THRESHOLDS: list[tuple[int, str]] = [
-    (80, "Critical"),
-    (55, "High"),
-    (30, "Medium"),
-    (10, "Low"),
+    (10, "Critical"),
+    (7, "High"),
+    (4, "Medium"),
+    (2, "Low"),
     (0, "Safe"),
 ]
 
