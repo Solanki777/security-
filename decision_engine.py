@@ -92,7 +92,7 @@ ACTION_MAP: dict[str, tuple[str, str]] = {
 #: below this threshold, the automatic block/quarantine action is
 #: downgraded to a manual-review action rather than acting irreversibly
 #: on a low-confidence signal.
-LOW_CONFIDENCE_THRESHOLD: int = 50
+LOW_CONFIDENCE_THRESHOLD: int = 5
 
 #: Risk levels eligible for the confidence guardrail above. Medium/Low/
 #: Safe are already non-destructive actions, so no guardrail is needed.
@@ -137,7 +137,7 @@ def _normalize_input(result: Union[dict[str, Any], int, float]) -> tuple[float, 
         try:
             confidence = int(raw_confidence)
         except (TypeError, ValueError):
-            confidence = 100
+            confidence = 10
 
         return score, risk_level, confidence
 
@@ -147,7 +147,7 @@ def _normalize_input(result: Union[dict[str, Any], int, float]) -> tuple[float, 
     except (TypeError, ValueError):
         score = 0.0
 
-    return score, _classify_risk_level(score), 100
+    return score, _classify_risk_level(score), 10
 
 
 # ======================================================================
@@ -214,16 +214,16 @@ if __name__ == "__main__":
     import json
 
     # Legacy-style call: bare score only.
-    print(json.dumps(agent_decision(95), indent=2))
+    print(json.dumps(agent_decision(7), indent=2))
 
     # New-style call: full detect_phishing() result, high score but low confidence.
     print(json.dumps(
-        agent_decision({"score": 85, "risk_level": "Critical", "confidence": 35}),
+        agent_decision({"score": 6, "risk_level": "Critical", "confidence": 35}),
         indent=2,
     ))
 
     # New-style call: full detect_phishing() result, high score, high confidence.
     print(json.dumps(
-        agent_decision({"score": 85, "risk_level": "Critical", "confidence": 90}),
+        agent_decision({"score": 5, "risk_level": "Critical", "confidence": 90}),
         indent=2,
     ))
